@@ -198,6 +198,7 @@
     <ClInclude Include="CStringUtils.h" />
     <ClInclude Include="DxfMgr.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="GetGlobalFolder.h" />
     <ClInclude Include="KVDfunction.h" />
     <ClInclude Include="LineEntity.h" />
     <ClInclude Include="MainFrm.h" />

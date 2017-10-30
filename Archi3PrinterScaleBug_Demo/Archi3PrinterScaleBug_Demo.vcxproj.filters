@@ -66,6 +66,9 @@
     <ClInclude Include="DxfMgr.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="GetGlobalFolder.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Archi3PrinterScaleBug_Demo.cpp">

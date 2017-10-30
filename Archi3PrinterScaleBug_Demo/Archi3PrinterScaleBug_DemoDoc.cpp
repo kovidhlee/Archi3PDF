@@ -15,6 +15,7 @@
 #include "Archi3PrinterScaleBug_DemoView.h"
 #include "PdfFileCreator.h"
 #include "LineEntity.h"
+#include "GetGlobalFolder.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -133,7 +134,7 @@ void CArchi3PrinterScaleBug_DemoDoc::Dump(CDumpContext& dc) const
 
 CString CArchi3PrinterScaleBug_DemoDoc::GetSampleFilePath() const
 {
-	return _T("d:\\test1.pdf");
+	return GetRootPath() + _T("test1.pdf");
 }
 
 CString CArchi3PrinterScaleBug_DemoDoc::GetSampleDocumentName() const
