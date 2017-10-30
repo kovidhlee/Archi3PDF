@@ -10,5 +10,5 @@ public:
 
 private:
 	bool PrepareCanvas(PHANDLE pPrinterHandle, HDC pPrintDC);
-	bool DrawOnPDF(LPCTSTR sFileFullPath, LPCTSTR sDocumentName, LPCTSTR sUserID);
+	bool DrawOnPDF(PHANDLE pPrinterHandle, HDC pPrintDC, LPCTSTR sFileFullPath, LPCTSTR sDocumentName, LPCTSTR sUserID);
 };

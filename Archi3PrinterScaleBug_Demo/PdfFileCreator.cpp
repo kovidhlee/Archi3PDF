@@ -1,6 +1,9 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "PdfFileCreator.h"
 #include <winspool.h>
+#include "MainFrm.h"
+#include "Archi3PrinterScaleBug_DemoDoc.h"
+#include "Base.h"
 #include "CStringUtils.h"
 
 CPdfFileCreator::CPdfFileCreator()
@@ -61,7 +64,7 @@ bool CPdfFileCreator::Create(CDC* pClientDC, LPCTSTR sFileFullPath, LPCTSTR sDoc
 	bool bResult = PrepareCanvas(&printerHandle, hdcPrint);
 	if (bResult)
 	{
-		DrawOnPDF(sFileFullPath, sDocumentName, sUserID);
+		DrawOnPDF(&printerHandle, hdcPrint, sFileFullPath, sDocumentName, sUserID);
 	}
 
 CleanUp:
@@ -88,7 +91,67 @@ bool CPdfFileCreator::PrepareCanvas(PHANDLE pPrinterHandle, HDC pPrintDC)
 	return true;
 }
 
-bool CPdfFileCreator::DrawOnPDF(LPCTSTR sFileFullPath, LPCTSTR sDocumentName, LPCTSTR sUserID)
+bool CPdfFileCreator::DrawOnPDF(PHANDLE pPrinterHandle, HDC pPrintDC, LPCTSTR sFileFullPath, LPCTSTR sDocumentName, LPCTSTR sUserID)
 {
-	return true;
+	ASSERT(pPrinterHandle);
+	ASSERT(pPrintDC);
+
+	CString sErrMessage;
+
+	DOCINFO docInfo;
+	{
+		ZeroMemory(&docInfo, sizeof(docInfo));
+		docInfo.cbSize = sizeof(docInfo);
+		docInfo.lpszDocName = sDocumentName;
+		docInfo.lpszOutput = sFileFullPath;
+	}
+
+	int nResult = 0;
+	if ((nResult = StartDoc(pPrintDC, &docInfo)) < 0)
+	{
+		sErrMessage = _T("StartDoc failed");
+		ASSERT(0);
+		goto CleanUp;
+	}
+
+	if (!StartPage(pPrintDC))
+	{
+		sErrMessage = _T("StartPage failed");
+		ASSERT(0);
+		goto CleanUp;
+	}
+
+	Graphics* g = new Graphics(pPrintDC, pPrinterHandle);
+	{
+		auto pDoc = (CArchi3PrinterScaleBug_DemoDoc*)GetCurDocument();
+		if (!pDoc)
+		{
+			sErrMessage = _T("GetCurDocument() failed");
+			ASSERT(0);
+			SAFE_DELETE(g);
+			goto CleanUp;
+		}
+
+		auto mainList = pDoc->GetMainList();
+		for (auto iter = mainList.begin(); iter != mainList.end(); ++iter)
+		{
+			CBase* pBase = *iter;
+			pBase->Draw(g, nullptr);
+		}
+	}
+	SAFE_DELETE(g);
+
+CleanUp:
+	EndPage(pPrintDC);
+	EndDoc(pPrintDC);
+
+	auto noError = sErrMessage.IsEmpty();
+	if (noError)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

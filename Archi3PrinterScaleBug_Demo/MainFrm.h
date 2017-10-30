@@ -3,6 +3,7 @@
 
 #pragma once
 
+class CArchi3PrinterScaleBug_DemoApp;
 class CArchi3PrinterScaleBug_DemoDoc;
 
 class CMainFrame : public CFrameWnd
