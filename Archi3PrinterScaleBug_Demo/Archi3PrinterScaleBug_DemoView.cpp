@@ -59,7 +59,6 @@ void CArchi3PrinterScaleBug_DemoView::OnDraw(CDC* pDC)
 
 	Gdiplus::Graphics g(pDC->m_hDC);
 	{
-		Pen pen(Color(255, 0, 0), 1.f);
 		auto mainList = pDoc->GetMainList();
 		for (auto iter = mainList.begin(); iter != mainList.end(); ++iter)
 		{
