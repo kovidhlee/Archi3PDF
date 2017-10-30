@@ -64,7 +64,7 @@ void CArchi3PrinterScaleBug_DemoView::OnDraw(CDC* pDC)
 		for (auto iter = mainList.begin(); iter != mainList.end(); ++iter)
 		{
 			CBase* pBase = *iter;
-			pBase->Draw(pDC, nullptr);
+			pBase->Draw(&g, nullptr);
 		}
 	}
 }
