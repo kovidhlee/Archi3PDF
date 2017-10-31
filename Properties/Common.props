@@ -5,7 +5,11 @@
     <UtilityPath>$(SolutionDir)Utility\</UtilityPath>
   </PropertyGroup>
   <PropertyGroup />
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(UtilityPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="UtilityPath">
       <Value>$(UtilityPath)</Value>
