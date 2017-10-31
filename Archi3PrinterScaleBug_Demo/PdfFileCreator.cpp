@@ -63,12 +63,12 @@ bool CPdfFileCreator::Create(CDC* pClientDC, LPCTSTR sFileFullPath, LPCTSTR sDoc
 		AfxMessageBox(sErrMessage);
 		return false;
 	}
-	auto p2 = (PRINTER_INFO_2*)buffer.data();
-	p2->pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
+	auto printerInfo = (PRINTER_INFO_2*)buffer.data();
+	printerInfo->pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
 
 	// Get a device context for the printer
 
-	auto hdcPrint = CreateSharedDC(NULL, sPrinterName, NULL, p2->pDevMode);
+	auto hdcPrint = CreateSharedDC(NULL, sPrinterName, NULL, printerInfo->pDevMode);
 	if (!hdcPrint)
 	{
 		sErrMessage = _T("CreateDC failed");
