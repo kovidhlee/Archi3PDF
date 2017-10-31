@@ -10,6 +10,7 @@
 
 #include "Archi3PrinterScaleBug_DemoDoc.h"
 
+#include <iterator>
 #include <propkey.h>
 #include "MainFrm.h"
 #include "Archi3PrinterScaleBug_DemoView.h"
@@ -23,6 +24,69 @@
 #define new DEBUG_NEW
 #endif
 
+namespace {
+	class LineF
+	{
+	public:
+		LineF(const PointF& start, const PointF& end)
+		{
+			this->start = start;
+			this->end = end;
+		}
+		LineF(REAL xstart, REAL ystart, REAL xend, REAL yend)
+		{
+			this->start = PointF(xstart, ystart);
+			this->end = PointF(xend, yend);
+		}
+		PointF start;
+		PointF end;
+	};
+
+	template <typename Iter>
+	void GenerateLines(const RectF& rect, Iter out)
+	{
+		auto b = rect.GetBottom();
+		auto t = rect.GetTop();
+		auto l = rect.GetLeft();
+		auto r = rect.GetRight();
+
+		// starts from lower left point clockwise
+		*out++ = LineF(l, b, l, t);
+		*out++ = LineF(l, t, r, t);
+		*out++ = LineF(r, t, r, b);
+		*out++ = LineF(r, b, l, b);
+	}
+
+	template <typename Container>
+	class LineConverter
+	{
+	public:
+		typedef LineF value_type;
+		typedef LineF& reference;
+		typedef const LineF& const_reference;
+		typedef typename Container::size_type size_type;
+		typedef typename Container::difference_type difference_type;
+
+		explicit LineConverter(Container& container)
+		{
+			target_ = &container;
+		}
+		void push_back(const LineF& line)
+		{
+			auto e = new CLineEntity();
+			e->SetPoint(line.start, line.end);
+			target_->push_back(e);
+		}
+	private:
+		Container* target_;
+	};
+
+	template <typename Container>
+	LineConverter<Container> CreateConverter(Container& container)
+	{
+		return LineConverter<Container>(container);
+	}
+}
 // CArchi3PrinterScaleBug_DemoDoc
 
 IMPLEMENT_DYNCREATE(CArchi3PrinterScaleBug_DemoDoc, CDocument)
@@ -161,27 +225,11 @@ CString CArchi3PrinterScaleBug_DemoDoc::GetSampleUserID() const
 
 void CArchi3PrinterScaleBug_DemoDoc::PushSampleEntities()
 {
-	PointF ptStart, ptEnd;
-
-	CLineEntity* pLineEntity = new CLineEntity;
-	{
-		ptStart.X = 100.f;
-		ptStart.Y = 100.f;
-		ptEnd.X = 200.f;
-		ptEnd.Y = 100.f;
-		pLineEntity->SetPoint(ptStart, ptEnd);
-		m_MainList.push_back(pLineEntity);
-	}
-
-	CLineEntity* pLineEntity2 = new CLineEntity;
-	{
-		ptStart.X = 300.f;
-		ptStart.Y = 100.f;
-		ptEnd.X = 600.f;
-		ptEnd.Y = 100.f;
-		pLineEntity2->SetPoint(ptStart, ptEnd);
-		m_MainList.push_back(pLineEntity2);
-	}
+	PointF upperLeft(100, 100);
+	SizeF size(600, 50);
+	RectF rect(upperLeft, size);
+	auto converter = CreateConverter(m_MainList);
+	GenerateLines(rect, std::back_inserter(converter));
 }
 
 void CArchi3PrinterScaleBug_DemoDoc::ClearList()
