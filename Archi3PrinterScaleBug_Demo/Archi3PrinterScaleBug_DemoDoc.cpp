@@ -262,5 +262,9 @@ void CArchi3PrinterScaleBug_DemoDoc::OnPdfFileSave()
 		{
 			DebugBreak();
 		}
+		else
+		{
+			ShellExecute(0, 0, sFileFullPath, 0, 0, SW_SHOW);
+		}
 	}
 }
