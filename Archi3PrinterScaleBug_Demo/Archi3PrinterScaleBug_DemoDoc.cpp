@@ -258,11 +258,10 @@ void CArchi3PrinterScaleBug_DemoDoc::OnPdfFileSave()
 		CString sUserID = GetSampleUserID();
 
 		DeleteFile(sFileFullPath);
-
 		CPdfFileCreator pdfCreator;
 		if (!pdfCreator.Create(dc.get(), sFileFullPath, sDocumentName, sUserID))
 		{
-			ASSERT(0);
+			DebugBreak();
 		}
 	}
 }
