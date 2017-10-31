@@ -8,6 +8,23 @@
 #include "Base.h"
 #include "CStringUtils.h"
 
+namespace
+{
+	std::shared_ptr<HDC__> CreateSharedDC(
+		_In_opt_ LPCWSTR pwszDriver, _In_opt_ LPCWSTR pwszDevice,
+		_In_opt_ LPCWSTR pszPort, _In_opt_ CONST DEVMODEW * pdm)
+	{
+		return std::shared_ptr<HDC__>(CreateDCW(pwszDriver, pwszDevice, pszPort, pdm), DeleteDC);
+	}
+
+	std::shared_ptr<HDC__> CreateSharedDC(
+		_In_opt_ LPCSTR pwszDriver, _In_opt_ LPCSTR pwszDevice,
+		_In_opt_ LPCSTR pszPort, _In_opt_ CONST DEVMODEA * pdm)
+	{
+		return std::shared_ptr<HDC__>(CreateDCA(pwszDriver, pwszDevice, pszPort, pdm), DeleteDC);
+	}
+}
+
 CPdfFileCreator::CPdfFileCreator()
 {
 }
@@ -50,8 +67,8 @@ bool CPdfFileCreator::Create(CDC* pClientDC, LPCTSTR sFileFullPath, LPCTSTR sDoc
 	p2->pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
 
 	// Get a device context for the printer
-	std::shared_ptr<HDC__> hdcPrint(CreateDC(NULL, sPrinterName, NULL, p2->pDevMode), DeleteDC);
 
+	auto hdcPrint = CreateSharedDC(NULL, sPrinterName, NULL, p2->pDevMode);
 	if (!hdcPrint)
 	{
 		sErrMessage = _T("CreateDC failed");
