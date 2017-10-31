@@ -16,6 +16,8 @@
 #include "PdfFileCreator.h"
 #include "LineEntity.h"
 #include "GetGlobalFolder.h"
+#include "CStringUtils.h"
+#include "FileOperations.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -134,7 +136,17 @@ void CArchi3PrinterScaleBug_DemoDoc::Dump(CDumpContext& dc) const
 
 CString CArchi3PrinterScaleBug_DemoDoc::GetSampleFilePath() const
 {
-	return GetRootPath() + _T("test1.pdf");
+	CString sDefaultFilePath = GetRootPath() + _T("test1");
+	CString sResult = sDefaultFilePath + _T(".pdf");
+
+	CFileOperation fo;
+	int nAttemptCount = 0;
+	while (fo.IsFileExist(sResult) && fo.IsFileUse(sResult))
+	{
+		sResult.Format(_T("%s (%d).pdf"), sDefaultFilePath, nAttemptCount++);
+	}
+
+	return sResult;
 }
 
 CString CArchi3PrinterScaleBug_DemoDoc::GetSampleDocumentName() const
