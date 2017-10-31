@@ -12,6 +12,8 @@
 
 #include <iterator>
 #include <propkey.h>
+#include <memory>
+#include <functional>
 #include "MainFrm.h"
 #include "Archi3PrinterScaleBug_DemoView.h"
 #include "PdfFileCreator.h"
@@ -247,8 +249,9 @@ void CArchi3PrinterScaleBug_DemoDoc::ClearList()
 
 void CArchi3PrinterScaleBug_DemoDoc::OnPdfFileSave()
 {
+	using namespace placeholders; // for _1, _2, _3, ...
 	auto pView = (CArchi3PrinterScaleBug_DemoView*)::GetMainFrame()->GetActiveView();
-	CDC* pDC = pView->GetDC();
+	std::shared_ptr<CDC> dc(pView->GetDC(), std::bind(&CView::ReleaseDC, pView, _1));
 	{
 		CString sFileFullPath = GetSampleFilePath();
 		CString sDocumentName = GetSampleDocumentName();
@@ -257,14 +260,11 @@ void CArchi3PrinterScaleBug_DemoDoc::OnPdfFileSave()
 		DeleteFile(sFileFullPath);
 
 		CPdfFileCreator pdfCreator;
-		if (!pdfCreator.Create(pDC, sFileFullPath, sDocumentName, sUserID))
+		if (!pdfCreator.Create(dc.get(), sFileFullPath, sDocumentName, sUserID))
 		{
 			ASSERT(0);
-			goto CleanUp;
 		}
 	}
-CleanUp:
-	pView->ReleaseDC(pDC);
 }
 
 #endif //_DEBUG
