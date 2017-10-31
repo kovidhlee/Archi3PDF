@@ -18,7 +18,7 @@
 #include "LineEntity.h"
 #include "GetGlobalFolder.h"
 #include "CStringUtils.h"
-#include "FileOperations.h"
+#include <FileOperations.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
