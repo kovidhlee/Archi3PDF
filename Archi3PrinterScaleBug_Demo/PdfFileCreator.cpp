@@ -1,5 +1,7 @@
 ﻿#include "stdafx.h"
 #include "PdfFileCreator.h"
+#include <memory>
+#include <functional>
 #include <winspool.h>
 #include "MainFrm.h"
 #include "Archi3PrinterScaleBug_DemoDoc.h"
@@ -18,69 +20,50 @@ bool CPdfFileCreator::Create(CDC* pClientDC, LPCTSTR sFileFullPath, LPCTSTR sDoc
 {
 	CString sErrMessage;
 
-	HDC hdcPrint;
-	HANDLE printerHandle;
-	DWORD dwBytesReturned = 0;
-	DWORD dwBytesNeeded = 0;
-
-	PRINTER_INFO_2* p2 = nullptr;
-
 	TCHAR sPrinterName[100];
 	{
 		ZeroMemory(&sPrinterName, sizeof(TCHAR) * 100);
 		_tcscpy_s(sPrinterName, _countof(sPrinterName), _T("Microsoft Print to PDF"));
 	}
 
+	HANDLE printerHandle;
 	if (!OpenPrinter(sPrinterName, &printerHandle, NULL))
 	{
 		sErrMessage = CStringUtils::FormattedString(_T("OpenPrinter failed.(errorCode : %d)"), GetLastError());
 		AfxMessageBox(sErrMessage);
-		goto CleanUp;
+		return false;
 	}
+	std::shared_ptr<void> printerHandleHolder(printerHandle, ClosePrinter);
 
 	// fetch size of printer info structure
-	GetPrinter(printerHandle, 2, NULL, 0, &dwBytesNeeded);
-
-	// fill in printer info structure
-	p2 = (PRINTER_INFO_2*) new BYTE[dwBytesNeeded];
-	if (GetPrinter(printerHandle, 2, (LPBYTE)p2, dwBytesNeeded, &dwBytesReturned) == 0)
+	DWORD dwBytesNeeded = 0;
+	DWORD dwBytesReturned = 0;
+	GetPrinter(printerHandleHolder.get(), 2, NULL, 0, &dwBytesNeeded);
+	std::vector<BYTE> buffer(dwBytesNeeded, (BYTE)0);
+	if (GetPrinter(printerHandleHolder.get(), 2, buffer.data(), dwBytesNeeded, &dwBytesReturned) == 0)
 	{
 		sErrMessage = _T("GetPrinter failed.(fill in structure)");
 		AfxMessageBox(sErrMessage);
-		goto CleanUp;
+		return false;
 	}
-
+	auto p2 = (PRINTER_INFO_2*)buffer.data();
 	p2->pDevMode->dmOrientation = DMORIENT_LANDSCAPE;
 
 	// Get a device context for the printer
-	if (NULL == (hdcPrint = CreateDC(NULL, sPrinterName, NULL, p2->pDevMode)))
+	std::shared_ptr<HDC__> hdcPrint(CreateDC(NULL, sPrinterName, NULL, p2->pDevMode), DeleteDC);
+
+	if (!hdcPrint)
 	{
 		sErrMessage = _T("CreateDC failed");
 		AfxMessageBox(sErrMessage);
-
-		goto CleanUp;
+		return false;
 	}
 
-	bool bResult = PrepareCanvas(&printerHandle, hdcPrint);
-	if (bResult)
-	{
-		DrawOnPDF(&printerHandle, hdcPrint, sFileFullPath, sDocumentName, sUserID);
-	}
+	if (!PrepareCanvas(&printerHandle, hdcPrint.get()))
+		return false;
 
-CleanUp:
-	SAFE_DELETE_ARRAY(p2);
-	ClosePrinter(printerHandle);
-	DeleteDC(hdcPrint);
-
-	BOOL bSuccess = sErrMessage.IsEmpty();
-	if (bSuccess)
-	{
-		return TRUE;
-	}
-	else
-	{
-		return FALSE;
-	}
+	DrawOnPDF(&printerHandle, hdcPrint.get(), sFileFullPath, sDocumentName, sUserID);
+	return true;
 }
 
 bool CPdfFileCreator::PrepareCanvas(PHANDLE pPrinterHandle, HDC pPrintDC)

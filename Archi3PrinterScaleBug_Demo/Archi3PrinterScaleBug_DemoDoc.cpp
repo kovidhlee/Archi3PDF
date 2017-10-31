@@ -187,8 +187,6 @@ void CArchi3PrinterScaleBug_DemoDoc::SetSearchContent(const CString& value)
 
 #endif // SHARED_HANDLERS
 
-// CArchi3PrinterScaleBug_DemoDoc 진단
-
 #ifdef _DEBUG
 void CArchi3PrinterScaleBug_DemoDoc::AssertValid() const
 {
@@ -200,6 +198,7 @@ void CArchi3PrinterScaleBug_DemoDoc::Dump(CDumpContext& dc) const
 	CDocument::Dump(dc);
 }
 
+#endif //_DEBUG
 CString CArchi3PrinterScaleBug_DemoDoc::GetSampleFilePath() const
 {
 	CString sDefaultFilePath = GetRootPath() + _T("test1");
@@ -265,7 +264,3 @@ void CArchi3PrinterScaleBug_DemoDoc::OnPdfFileSave()
 		}
 	}
 }
-
-#endif //_DEBUG
-
-// CArchi3PrinterScaleBug_DemoDoc 명령
