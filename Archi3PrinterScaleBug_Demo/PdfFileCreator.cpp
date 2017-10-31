@@ -33,31 +33,32 @@ CPdfFileCreator::~CPdfFileCreator()
 {
 }
 
+std::shared_ptr<void> OpenPrinterShared(_In_  LPTSTR pPrinterName, _In_  LPPRINTER_DEFAULTS pDefault)
+{
+	HANDLE printerHandle = NULL;
+	OpenPrinter(pPrinterName, &printerHandle, NULL);
+	return std::shared_ptr<void>(printerHandle, ClosePrinter);
+}
+
 bool CPdfFileCreator::Create(CDC* pClientDC, LPCTSTR sFileFullPath, LPCTSTR sDocumentName, LPCTSTR sUserID)
 {
 	CString sErrMessage;
 
-	TCHAR sPrinterName[100];
-	{
-		ZeroMemory(&sPrinterName, sizeof(TCHAR) * 100);
-		_tcscpy_s(sPrinterName, _countof(sPrinterName), _T("Microsoft Print to PDF"));
-	}
-
-	HANDLE printerHandle;
-	if (!OpenPrinter(sPrinterName, &printerHandle, NULL))
+	CString sPrinterName(_T("Microsoft Print to PDF"));
+	auto printerHandle = OpenPrinterShared((LPTSTR)(LPCTSTR)sPrinterName, NULL);
+	if (!printerHandle)
 	{
 		sErrMessage = CStringUtils::FormattedString(_T("OpenPrinter failed.(errorCode : %d)"), GetLastError());
 		AfxMessageBox(sErrMessage);
 		return false;
 	}
-	std::shared_ptr<void> printerHandleHolder(printerHandle, ClosePrinter);
 
 	// fetch size of printer info structure
 	DWORD dwBytesNeeded = 0;
 	DWORD dwBytesReturned = 0;
-	GetPrinter(printerHandleHolder.get(), 2, NULL, 0, &dwBytesNeeded);
+	GetPrinter(printerHandle.get(), 2, NULL, 0, &dwBytesNeeded);
 	std::vector<BYTE> buffer(dwBytesNeeded, (BYTE)0);
-	if (GetPrinter(printerHandleHolder.get(), 2, buffer.data(), dwBytesNeeded, &dwBytesReturned) == 0)
+	if (GetPrinter(printerHandle.get(), 2, buffer.data(), dwBytesNeeded, &dwBytesReturned) == 0)
 	{
 		sErrMessage = _T("GetPrinter failed.(fill in structure)");
 		AfxMessageBox(sErrMessage);
@@ -76,14 +77,14 @@ bool CPdfFileCreator::Create(CDC* pClientDC, LPCTSTR sFileFullPath, LPCTSTR sDoc
 		return false;
 	}
 
-	if (!PrepareCanvas(&printerHandle, hdcPrint.get()))
+	if (!PrepareCanvas(printerHandle.get(), hdcPrint.get()))
 		return false;
 
-	DrawOnPDF(&printerHandle, hdcPrint.get(), sFileFullPath, sDocumentName, sUserID);
+	DrawOnPDF(printerHandle.get(), hdcPrint.get(), sFileFullPath, sDocumentName, sUserID);
 	return true;
 }
 
-bool CPdfFileCreator::PrepareCanvas(PHANDLE pPrinterHandle, HDC pPrintDC)
+bool CPdfFileCreator::PrepareCanvas(HANDLE pPrinterHandle, HDC pPrintDC)
 {
 	ASSERT(pPrinterHandle);
 	ASSERT(pPrintDC);
@@ -91,7 +92,7 @@ bool CPdfFileCreator::PrepareCanvas(PHANDLE pPrinterHandle, HDC pPrintDC)
 	return true;
 }
 
-bool CPdfFileCreator::DrawOnPDF(PHANDLE pPrinterHandle, HDC pPrintDC, LPCTSTR sFileFullPath, LPCTSTR sDocumentName, LPCTSTR sUserID)
+bool CPdfFileCreator::DrawOnPDF(HANDLE pPrinterHandle, HDC pPrintDC, LPCTSTR sFileFullPath, LPCTSTR sDocumentName, LPCTSTR sUserID)
 {
 	ASSERT(pPrinterHandle);
 	ASSERT(pPrintDC);
