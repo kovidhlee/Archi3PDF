@@ -20,6 +20,9 @@
 #include "LineEntity.h"
 #include "GetGlobalFolder.h"
 #include "CStringUtils.h"
+#include "Operator.h"
+#include "World.h"
+#include "CadContext.h"
 #include <FileOperations.h>
 
 #ifdef _DEBUG
@@ -99,6 +102,8 @@ END_MESSAGE_MAP()
 // CArchi3PrinterScaleBug_DemoDoc 생성/소멸
 
 CArchi3PrinterScaleBug_DemoDoc::CArchi3PrinterScaleBug_DemoDoc()
+	: m_pOperator(new COperator())
+	, m_pWorld(nullptr)
 {
 	// TODO: 여기에 일회성 생성 코드를 추가합니다.
 }
@@ -244,6 +249,63 @@ void CArchi3PrinterScaleBug_DemoDoc::ClearList()
 	m_MainList.clear();
 
 	ASSERT(m_MainList.size() == 0);
+}
+
+void CArchi3PrinterScaleBug_DemoDoc::OPER_InitWindow(HWND hWnd, CPoint point /*= CPoint(0, 0)*/)
+{
+	m_pOperator->InitWindow(hWnd, point);
+}
+
+void CArchi3PrinterScaleBug_DemoDoc::OPER_OnMouseMove(CPoint pt)
+{
+	m_pOperator->OnMouseMove(pt);
+}
+
+void CArchi3PrinterScaleBug_DemoDoc::OPER_OnMouseWheel(short zDelta, CPoint pt)
+{
+	m_pOperator->OnMouseWheel(zDelta, pt);
+}
+
+void CArchi3PrinterScaleBug_DemoDoc::OPER_OnMButtonDown(CPoint pt)
+{
+	m_pOperator->OnMButtonDown(pt);
+}
+
+void CArchi3PrinterScaleBug_DemoDoc::OPER_OnMButtonUp(CPoint pt)
+{
+	m_pOperator->OnMButtonUp(pt);
+}
+
+void CArchi3PrinterScaleBug_DemoDoc::OPER_Render(BOOL bPrint /*= FALSE */, CDC* pDC /*= nullptr */)
+{
+	m_pOperator->Render(bPrint, pDC);
+}
+
+CWorld* CArchi3PrinterScaleBug_DemoDoc::KVDworld_create(CCadContext* pCad)
+{
+	ASSERT(pCad);
+
+	CWorld* pWorld = new CWorld;
+	pWorld->SetCadContext(pCad);
+
+	return pWorld;
+}
+
+RectF CArchi3PrinterScaleBug_DemoDoc::KVDworld_dptolp_rect(Graphics* pGr, CRect rc)
+{
+	return theApp.GetMainWorld()->DPtoLP(rc, pGr);
+}
+
+void CArchi3PrinterScaleBug_DemoDoc::KVDworld_draw(BOOL bPrint, RectF rcClip, BOOL bDPClip, float fClipGap)
+{
+	if (bPrint)
+	{
+		theApp.GetMainWorld()->Print(rcClip, bDPClip);
+	}
+	else
+	{
+		theApp.GetMainWorld()->Draw(rcClip, bDPClip, fClipGap);
+	}
 }
 
 void CArchi3PrinterScaleBug_DemoDoc::OnPdfFileSave()

@@ -39,9 +39,13 @@ protected:
 
 	// 생성된 메시지 맵 함수
 protected:
-	DECLARE_MESSAGE_MAP()
-public:
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint pt);
+	afx_msg void OnMButtonDown(UINT nFlags, CPoint pt);
+	afx_msg void OnMButtonUp(UINT nFlags, CPoint pt);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	DECLARE_MESSAGE_MAP()
 };
 
 #ifndef _DEBUG  // Archi3PrinterScaleBug_DemoView.cpp의 디버그 버전

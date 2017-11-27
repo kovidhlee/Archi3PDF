@@ -9,6 +9,7 @@
 
 #include "Archi3PrinterScaleBug_DemoDoc.h"
 #include "Archi3PrinterScaleBug_DemoView.h"
+#include "World.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -28,6 +29,7 @@ END_MESSAGE_MAP()
 // CArchi3PrinterScaleBug_DemoApp 생성
 
 CArchi3PrinterScaleBug_DemoApp::CArchi3PrinterScaleBug_DemoApp()
+	:m_kvdWorld(nullptr)
 {
 	// 다시 시작 관리자 지원
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
@@ -44,6 +46,11 @@ CArchi3PrinterScaleBug_DemoApp::CArchi3PrinterScaleBug_DemoApp()
 
 	// TODO: 여기에 생성 코드를 추가합니다.
 	// InitInstance에 모든 중요한 초기화 작업을 배치합니다.
+}
+
+CArchi3PrinterScaleBug_DemoApp::~CArchi3PrinterScaleBug_DemoApp()
+{
+	SAFE_DELETE(m_kvdWorld);
 }
 
 BOOL CArchi3PrinterScaleBug_DemoApp::InitGDIPlus()

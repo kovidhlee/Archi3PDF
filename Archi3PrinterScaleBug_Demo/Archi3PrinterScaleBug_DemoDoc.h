@@ -2,8 +2,12 @@
 //
 
 #pragma once
+#include <memory>
 
 class CBase;
+class COperator;
+class CWorld;
+class CCadContext;
 
 class CArchi3PrinterScaleBug_DemoDoc : public CDocument
 {
@@ -34,10 +38,21 @@ public:
 
 private:
 	std::list<CBase*> m_MainList;
+	std::shared_ptr<COperator> m_pOperator;
+	std::shared_ptr<CWorld> m_pWorld;
 
 public:
 	void PushSampleEntities();
 	void ClearList();
+	void OPER_InitWindow(HWND hWnd, CPoint point = CPoint(0, 0));
+	void OPER_OnMouseMove(CPoint pt);
+	void OPER_OnMouseWheel(short zDelta, CPoint pt);
+	void OPER_OnMButtonDown(CPoint pt);
+	void OPER_OnMButtonUp(CPoint pt);
+	void OPER_Render(BOOL bPrint = FALSE, CDC* pDC = nullptr);
+	CWorld* KVDworld_create(CCadContext* pCad);
+	RectF KVDworld_dptolp_rect(Graphics* pGr, CRect rc);
+	void KVDworld_draw(BOOL bPrint, RectF rcClip, BOOL bDPClip, float fClipGap);
 
 private:
 	CString GetSampleFilePath() const;

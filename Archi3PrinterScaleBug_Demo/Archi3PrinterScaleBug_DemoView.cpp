@@ -26,6 +26,11 @@ BEGIN_MESSAGE_MAP(CArchi3PrinterScaleBug_DemoView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+	ON_WM_CREATE()
+	ON_WM_MOUSEWHEEL()
+	ON_WM_MOUSEMOVE()
+	ON_WM_MBUTTONDOWN()
+	ON_WM_MBUTTONUP()
 	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
@@ -57,15 +62,7 @@ void CArchi3PrinterScaleBug_DemoView::OnDraw(CDC* pDC)
 	if (!pDoc)
 		return;
 
-	Gdiplus::Graphics g(pDC->m_hDC);
-	{
-		auto mainList = pDoc->GetMainList();
-		for (auto iter = mainList.begin(); iter != mainList.end(); ++iter)
-		{
-			CBase* pBase = *iter;
-			pBase->Draw(&g, nullptr);
-		}
-	}
+	pDoc->OPER_Render(pDC->IsPrinting(), pDC);
 }
 
 // CArchi3PrinterScaleBug_DemoView 인쇄
@@ -98,15 +95,64 @@ void CArchi3PrinterScaleBug_DemoView::Dump(CDumpContext& dc) const
 {
 	CView::Dump(dc);
 }
+#endif //_DEBUG
 
 CArchi3PrinterScaleBug_DemoDoc* CArchi3PrinterScaleBug_DemoView::GetDocument() const // 디버그되지 않은 버전은 인라인으로 지정됩니다.
 {
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CArchi3PrinterScaleBug_DemoDoc)));
 	return (CArchi3PrinterScaleBug_DemoDoc*)m_pDocument;
 }
-#endif //_DEBUG
 
 // CArchi3PrinterScaleBug_DemoView 메시지 처리기
+
+int CArchi3PrinterScaleBug_DemoView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	CPoint pt;
+	pt.x = lpCreateStruct->cx / 2;
+	pt.y = lpCreateStruct->cy / 2;
+
+	auto hwnd = GetSafeHwnd();
+	GetDocument()->OPER_InitWindow(hwnd, pt);
+
+	return 0;
+}
+
+BOOL CArchi3PrinterScaleBug_DemoView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	CRect rt;
+	this->GetWindowRect(rt);
+	CPoint ptView = pt;
+	ptView.x -= rt.left;
+	ptView.y -= rt.top;
+
+	GetDocument()->OPER_OnMouseWheel(zDelta, ptView);
+	Invalidate(FALSE);
+
+	return CView::OnMouseWheel(nFlags, zDelta, pt);
+}
+
+void CArchi3PrinterScaleBug_DemoView::OnMouseMove(UINT nFlags, CPoint pt)
+{
+	GetDocument()->OPER_OnMouseMove(pt);
+	GetDocument()->OPER_Render();
+
+	CView::OnMouseMove(nFlags, pt);
+}
+
+void CArchi3PrinterScaleBug_DemoView::OnMButtonDown(UINT nFlags, CPoint pt)
+{
+	GetDocument()->OPER_OnMButtonDown(pt);
+	CView::OnMButtonDown(nFlags, pt);
+}
+
+void CArchi3PrinterScaleBug_DemoView::OnMButtonUp(UINT nFlags, CPoint pt)
+{
+	GetDocument()->OPER_OnMButtonUp(pt);
+	CView::OnMButtonUp(nFlags, pt);
+}
 
 void CArchi3PrinterScaleBug_DemoView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {

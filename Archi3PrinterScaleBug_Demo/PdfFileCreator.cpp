@@ -81,6 +81,7 @@ bool CPdfFileCreator::Create(CDC* pClientDC, LPCTSTR sFileFullPath, LPCTSTR sDoc
 		return false;
 
 	DrawOnPDF(printerHandle.get(), hdcPrint.get(), sFileFullPath, sDocumentName, sUserID);
+
 	return true;
 }
 

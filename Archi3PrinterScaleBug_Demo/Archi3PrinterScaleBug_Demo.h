@@ -8,6 +8,8 @@
 
 #include "resource.h"       // 주 기호입니다.
 
+class CWorld;
+
 // CArchi3PrinterScaleBug_DemoApp:
 // 이 클래스의 구현에 대해서는 Archi3PrinterScaleBug_Demo.cpp을 참조하십시오.
 //
@@ -15,16 +17,19 @@
 class CArchi3PrinterScaleBug_DemoApp : public CWinAppEx
 {
 public:
+	CWorld* m_kvdWorld;
+private:
+	bool m_bGdiSuccess;
+	ULONG_PTR m_gdiplusToken;
+
+public:
 	CArchi3PrinterScaleBug_DemoApp();
+	virtual ~CArchi3PrinterScaleBug_DemoApp();
 
 private:
 	BOOL InitGDIPlus();
 	void ReleaseGDIPlus();
 	BOOL LoadTestScene();
-
-private:
-	bool m_bGdiSuccess;
-	ULONG_PTR m_gdiplusToken;
 
 	// 재정의입니다.
 public:
@@ -34,6 +39,12 @@ public:
 	// 구현입니다.
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
+
+public:
+	CWorld* GetMainWorld()
+	{
+		return m_kvdWorld;
+	}
 };
 
 extern CArchi3PrinterScaleBug_DemoApp theApp;

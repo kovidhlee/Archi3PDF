@@ -199,6 +199,7 @@
     <ClInclude Include="Attribute.h" />
     <ClInclude Include="AttributeMgr.h" />
     <ClInclude Include="Base.h" />
+    <ClInclude Include="CadContext.h" />
     <ClInclude Include="CStringUtils.h" />
     <ClInclude Include="DxfMgr.h" />
     <ClInclude Include="Entity.h" />
@@ -206,10 +207,14 @@
     <ClInclude Include="KVDfunction.h" />
     <ClInclude Include="LineEntity.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Operator.h" />
     <ClInclude Include="PdfFileCreator.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RtreeMgr.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TempletNode.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Archi3PrinterScaleBug_Demo.cpp" />
@@ -218,17 +223,22 @@
     <ClCompile Include="Attribute.cpp" />
     <ClCompile Include="AttributeMgr.cpp" />
     <ClCompile Include="Base.cpp" />
+    <ClCompile Include="CadContext.cpp" />
     <ClCompile Include="CStringUtils.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="LineEntity.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="Operator.cpp" />
     <ClCompile Include="PdfFileCreator.cpp" />
+    <ClCompile Include="RtreeMgr.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TempletNode.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Archi3PrinterScaleBug_Demo.rc" />
